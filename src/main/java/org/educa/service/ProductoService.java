@@ -127,14 +127,18 @@ public class ProductoService {
         if (!xml.isFile()) {
             throw new IOException("No se encuentra el fichero XML: " + xml.getAbsolutePath());
         }
-        List<Producto> productos =  productoDao.readFile(fileXml);
-
+        List<ProductoEntity> productos = readFile(fileXml);
         String nombreFichero = xml.getName();
         int punto = nombreFichero.lastIndexOf('.');
         String nombreSinExtension = punto >= 0 ? nombreFichero.substring(0, punto)
                 : nombreFichero;
 
         int separador = nombreSinExtension.lastIndexOf('_');
-        //excelDao.exportarExcel(productos, fecha, path);
+
+        String fecha = separador >= 0
+                ? nombreSinExtension.substring(separador + 1)
+                : nombreSinExtension;
+
+        excelDao.exportarExcel(productos, fecha, path);
     }
 }
