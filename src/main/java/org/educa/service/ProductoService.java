@@ -4,6 +4,7 @@ package org.educa.service;
 import generated.Costes;
 import generated.Producto;
 import jakarta.xml.bind.JAXBException;
+import org.educa.dao.ExcelDao;
 import org.educa.dao.ProductoDao;
 import org.educa.dao.SummaryDao;
 import org.educa.entity.ProductoEntity;
@@ -13,10 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +22,8 @@ import java.util.List;
 public class ProductoService {
 
     private final ProductoDao productoDao = new ProductoDao();
+    private final SummaryDao  summaryDao = new SummaryDao();
+    private final ExcelDao excelDao = new ExcelDao();
 
     public List<ProductoEntity> readFile(String fileXml)
             throws JAXBException {
@@ -118,11 +118,23 @@ public class ProductoService {
         );
 
         SummaryDao summaryDao = new SummaryDao();
-        summaryDao.exportToFile(summary, path);
+        summaryDao.exportarFichero(summary, path);
     }
 
     public void exportExcel(String path, String fileXml)
             throws JAXBException, IOException, ParseException {
-        // TODO: Implementar el ejercicio 3.
+        File xml = new File(fileXml);
+        if (!xml.isFile()) {
+            throw new IOException("No se encuentra el fichero XML: " + xml.getAbsolutePath());
+        }
+        List<Producto> productos =  productoDao.readFile(fileXml);
+
+        String nombreFichero = xml.getName();
+        int punto = nombreFichero.lastIndexOf('.');
+        String nombreSinExtension = punto >= 0 ? nombreFichero.substring(0, punto)
+                : nombreFichero;
+
+        int separador = nombreSinExtension.lastIndexOf('_');
+        //excelDao.exportarExcel(productos, fecha, path);
     }
 }
