@@ -5,7 +5,9 @@ import generated.Costes;
 import generated.Producto;
 import jakarta.xml.bind.JAXBException;
 import org.educa.dao.ProductoDao;
+import org.educa.dao.SummaryDao;
 import org.educa.entity.ProductoEntity;
+import org.educa.entity.SummaryEntity;
 
 import java.io.File;
 import java.io.IOException;
@@ -106,25 +108,17 @@ public class ProductoService {
                 ? nombreSinExtension.substring(separador + 1)
                 : nombreSinExtension;
 
-        String rutaAbsoluta = xml.getAbsolutePath();
-        long tamano = Files.size(xml.toPath());
+        SummaryEntity summary = new SummaryEntity(
+                fecha,
+                productos.size(),
+                beneficioTotal,
+                xml.getAbsolutePath(),
+                nombreSinExtension,
+                Files.size(xml.toPath())
+        );
 
-        Path carpeta = Paths.get(path);
-        Files.createDirectories(carpeta);
-
-        Path salida = carpeta.resolve("result_" + fecha + ".txt");
-
-        String salto = System.lineSeparator();
-
-        String contenido =
-                "Fecha: " + fecha + salto +
-                        "NumeroDeProductos: " + productos.size() + salto +
-                        "BeneficioTotal: " + beneficioTotal + salto +
-                        "Ruta del fichero: " + rutaAbsoluta + salto +
-                        "Nombre del fichero: " + nombreSinExtension + salto +
-                        "Tamaño del fichero: " + tamano + " bytes";
-
-        Files.writeString(salida, contenido, StandardCharsets.UTF_8);
+        SummaryDao summaryDao = new SummaryDao();
+        summaryDao.exportToFile(summary, path);
     }
 
     public void exportExcel(String path, String fileXml)
